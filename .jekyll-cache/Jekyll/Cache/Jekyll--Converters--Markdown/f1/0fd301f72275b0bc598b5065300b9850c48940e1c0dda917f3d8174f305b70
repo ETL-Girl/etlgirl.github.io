@@ -1,0 +1,784 @@
+I"(<p>Text processing and manipulation are often critical in the process of data cleansing and preparation. Machine learning models which use such data include <em>sentiment analysis of social media, language translations, filtering spam messages, parsing and extracting data from websites</em> and many more. Regular expressions allow for these tasks to be completed way faster and more efficiently.</p>
+
+<h2 id="basic-string-methods">Basic String Methods</h2>
+<p>Python recognises any sequence of characters placed inside quotes as a string object. These quotes may be both single and double. If we want to actually use a quote as a part of a string, we need to enclose the whole string in the other type of quote, e.g.:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">'This isn'</span><span class="n">t</span> <span class="n">going</span> <span class="n">to</span> <span class="n">work</span><span class="s">')</span><span class="err">
+</span></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  File "&lt;input&gt;", line 1
+    print('This isn't going to work!')
+                    ^
+SyntaxError: invalid syntax
+</code></pre></div></div>
+<p><br /></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"But this isn't going to cause any problems!"</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>But this isn't going to cause any problems!
+</code></pre></div></div>
+
+<p><strong><span style="font-family:Courier; color:black">len()</span></strong> method can be used to count the number of characters in a string.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_string</span> <span class="o">=</span> <span class="s">"I wonder how many characters are in this string..."</span>
+<span class="nb">len</span><span class="p">(</span><span class="n">my_string</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>50
+</code></pre></div></div>
+
+<p>Two or more strings can be concatenated using <strong><span style="font-family:Courier; color:black">+</span></strong> operator.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">str_1</span> <span class="o">=</span> <span class="s">'just'</span>
+<span class="n">str_2</span> <span class="o">=</span> <span class="s">'random'</span>
+<span class="n">str_3</span> <span class="o">=</span> <span class="s">'words'</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">str_1</span> <span class="o">+</span> <span class="s">" "</span> <span class="o">+</span> <span class="n">str_2</span> <span class="o">+</span> <span class="s">" "</span> <span class="o">+</span> <span class="n">str_3</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'just random words'
+</code></pre></div></div>
+
+<p>Same thing can be done with <strong><span style="font-family:Courier; color:black">join()</span></strong> method with a list of strings as an argument. Note that the method is called on a separating element (here whitespace).</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">" "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">str_1</span><span class="p">,</span> <span class="n">str_2</span><span class="p">,</span> <span class="n">str_3</span><span class="p">]))</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'just random words'
+</code></pre></div></div>
+
+<p>A specific character or a group of characters within a string can be accessed using bracket notation
+<strong><span style="font-family:Courier; color:black">[start:stop:stride]</span></strong>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_string</span> <span class="o">=</span> <span class="s">"fantastic"</span>
+<span class="k">print</span><span class="p">(</span><span class="n">my_string</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="c1"># first character
+</span><span class="k">print</span><span class="p">(</span><span class="n">my_string</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span> <span class="c1"># some middle characters
+</span><span class="k">print</span><span class="p">(</span><span class="n">my_string</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># last character
+</span><span class="k">print</span><span class="p">(</span><span class="n">my_string</span><span class="p">[::</span><span class="mi">2</span><span class="p">])</span> <span class="c1"># every second character
+</span><span class="k">print</span><span class="p">(</span><span class="n">my_string</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># reversed string
+</span></code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>f
+ant
+c
+fnatc
+citsatnaf
+</code></pre></div></div>
+
+<p>Methods for adjusting string capitalization include: <strong><span style="font-family:Courier; color:black">lower()</span></strong>, <strong><span style="font-family:Courier; color:black">upper()</span></strong> and <strong><span style="font-family:Courier; color:black">capitalize()</span></strong>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_string</span> <span class="o">=</span> <span class="s">"whAT HaPPened to THESE leTTerS?"</span>
+<span class="k">print</span><span class="p">(</span><span class="n">my_string</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="n">my_string</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="n">my_string</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WHAT HAPPENED TO THESE LETTERS?
+what happened to these letters?
+What happened to these letters?
+</code></pre></div></div>
+
+<p>A string can be split into a list of substrings using <strong><span style="font-family:Courier; color:black">split()</span></strong> and <strong><span style="font-family:Courier; color:black">rsplit()</span></strong> methods. The former starts splitting the string from the left, the latter from the right. If <strong><span style="font-family:Courier; color:black">maxsplit</span></strong> paramater is not specified, both methods work in the same way - they give the maximum possible number of substrings. Also, the whitespace is the default split character so it does not need to be explicitly specified.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_string</span> <span class="o">=</span> <span class="s">"This string should be split into separate parts"</span>
+
+<span class="n">my_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s">" "</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">my_string</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s">" "</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">my_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s">" "</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">my_string</span><span class="p">))</span>
+<span class="n">my_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s">" "</span><span class="p">)</span>
+<span class="n">my_string</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['This', 'string should be split into separate parts']
+['This string should be split into separate', 'parts']
+['This', 'string', 'should', 'be', 'split', 'into', 'separate', 'parts']
+['This', 'string', 'should', 'be', 'split', 'into', 'separate', 'parts']
+['This', 'string', 'should', 'be', 'split', 'into', 'separate', 'parts']
+</code></pre></div></div>
+
+<p><strong><span style="font-family:Courier; color:black">strip()</span></strong> method can be used to remove leading and trailing whitespace. <strong><span style="font-family:Courier; color:black">rstrip()</span></strong> or <strong><span style="font-family:Courier; color:black">lstrip()</span></strong> can be used to remove only trailing or only leading whitespace respectively.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_string</span> <span class="o">=</span> <span class="s">"   This string should be stripped!    "</span>
+
+<span class="n">my_string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="n">my_string</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+<span class="n">my_string</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'This string should be stripped!'
+'   This string should be stripped!'
+'This string should be stripped!    '
+</code></pre></div></div>
+
+<p>Particular part of a string can be replaced with another string with <strong><span style="font-family:Courier; color:black">replace()</span></strong> method.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'stripped'</span><span class="p">,</span> <span class="s">'replaced'</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'   This string should be replaced!    '
+</code></pre></div></div>
+
+<p>Please note that string methods can be <strong>chained</strong>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'stripped'</span><span class="p">,</span> <span class="s">'replaced'</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'THIS STRING SHOULD BE REPLACED!'
+</code></pre></div></div>
+
+<p><strong><span style="font-family:Courier; color:black">find()</span></strong> method returns the starting position of the first occurence of a given string. Optionally we can include <strong><span style="font-family:Courier; color:black">start</span></strong> and <strong><span style="font-family:Courier; color:black">end</span></strong> parameters (where starting position is inclusive but ending position is not).</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_string</span> <span class="o">=</span> <span class="s">"Mr Heckles has a cat. Or he could have a cat. You owe him a cat."</span>
+<span class="c1"># Any Friends fans here? ;)
+</span>
+<span class="n">my_string</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'cat'</span><span class="p">)</span>
+<span class="n">my_string</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'cat'</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>17
+41
+</code></pre></div></div>
+
+<p>If the substring is not found the method returns <strong><span style="font-family:Courier; color:black">-1</span></strong>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_string</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'dog'</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-1
+</code></pre></div></div>
+
+<p><strong><span style="font-family:Courier; color:black">index()</span></strong> method works nearly the same way as <strong><span style="font-family:Courier; color:black">find()</span></strong>, except that now if the substring is not found it raises a ValueError.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_string</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">'cat'</span><span class="p">)</span>
+<span class="n">my_string</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">'dog'</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>17
+Traceback (most recent call last):
+  File "&lt;input&gt;", line 1, in &lt;module&gt;
+ValueError: substring not found
+</code></pre></div></div>
+
+<p>We can count how many times a substring occurs in a string with <strong><span style="font-family:Courier; color:black">count()</span></strong> method. Also this method can take optional <strong><span style="font-family:Courier; color:black">start</span></strong> and <strong><span style="font-family:Courier; color:black">end</span></strong> parameters.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_string</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">'cat'</span><span class="p">)</span>
+<span class="n">my_string</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">'cat'</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>3
+2
+</code></pre></div></div>
+
+<p>Getting back to <strong><span style="font-family:Courier; color:black">replace()</span></strong> method - we can specify how many occurencies of a substring should be replaced.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'cat'</span><span class="p">,</span> <span class="s">'dog'</span><span class="p">)</span>
+<span class="n">my_string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'cat'</span><span class="p">,</span> <span class="s">'dog'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'Mr Heckles has a dog. Or he could have a dog. You owe him a dog.'
+'Mr Heckles has a dog. Or he could have a cat. You owe him a cat.'
+</code></pre></div></div>
+
+<p>Replace might be especially useful when preparing data for sentiment analysis algorithms. Some algorithms might have problems with negations. For example, a movie review might say the movie was <em>not good</em>. Sentiment analysis models will split the whole review into separate words or bags of words. They might ignore the <em>not</em> part and conclude from the word <em>good</em> that the sentiment of the review is positive. This issue could be avoided by replacing words preceded by <em>not</em> with their antonyms.</p>
+
+<h2 id="positional-string-formatting">Positional String Formatting</h2>
+
+<p>String formatting is used for inserting a custom string or a variable in a predefined text. The placeholder for a string is marked by curly brackets <strong><span style="font-family:Courier; color:black">{}</span></strong>. Let’s see an example:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="s">"Mr Heckles has a {}. Or he could have a {}. You owe him a {}."</span>
+<span class="n">text</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="s">'cat'</span><span class="p">,</span> <span class="s">'cat'</span><span class="p">,</span> <span class="s">'cat'</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="s">'cat'</span><span class="p">,</span> <span class="s">'dog'</span><span class="p">,</span> <span class="s">'fish'</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'Mr Heckles has a cat. Or he could have a cat. You owe him a cat.'
+'Mr Heckles has a cat. Or he could have a dog. You owe him a fish.'
+</code></pre></div></div>
+
+<p>This method replaces all placeholders with passed values in order of their appearance. This can be changed if we add reordered index numbers within the brackets.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="s">"Mr Heckles has a {1}. Or he could have a {2}. You owe him a {0}."</span>
+<span class="n">text</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="s">'cat'</span><span class="p">,</span> <span class="s">'dog'</span><span class="p">,</span> <span class="s">'fish'</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'Mr Heckles has a dog. Or he could have a fish. You owe him a cat.'
+</code></pre></div></div>
+
+<p>Now that we know this, we can make the very first example from this section more concise:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="s">"Mr Heckles has a {0}. Or he could have a {0}. You owe him a {0}."</span>
+<span class="n">text</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="s">'cat'</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'Mr Heckles has a cat. Or he could have a cat. You owe him a cat.'
+</code></pre></div></div>
+
+<p>Placeholders can also have their own names.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="s">"{owner} has a {animal}. Or he could have a {animal}. "</span> \
+       <span class="s">"You owe him a {animal}."</span>
+<span class="n">text</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">owner</span><span class="o">=</span><span class="s">"Mr Heckles"</span><span class="p">,</span> <span class="n">animal</span><span class="o">=</span><span class="s">"cat"</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'Mr Heckles has a cat. Or he could have a cat. You owe him a cat.'
+</code></pre></div></div>
+
+<p>We can format the data we pass into placeholders which might be especially useful with numbers or dates.
+In the example below <strong><span style="font-family:Courier; color:black">f</span></strong> was used to get float. Other common format specifiers include <strong><span style="font-family:Courier; color:black">e</span></strong> for scientific notation and <strong><span style="font-family:Courier; color:black">d</span></strong> for digit (integer number).</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="s">"There is actually {chance:.2f}</span><span class="si">% </span><span class="s">chance that Mr Heckles had a cat."</span>
+<span class="n">text</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">chance</span><span class="o">=</span><span class="mf">0.0512349</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'There is actually 0.05% chance that Mr Heckles had a cat.'
+</code></pre></div></div>
+
+<p>Similarly, a date can be formatted:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"Today's date: {}"</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Today's date: {:</span><span class="si">%</span><span class="s">Y-</span><span class="si">%</span><span class="s">m-</span><span class="si">%</span><span class="s">d}"</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Today's date: 2019-08-06 16:25:23.892789
+Today's date: 2019-08-06
+</code></pre></div></div>
+
+<p>Finally, a dictionary can be used to replace placeholders with specific values.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">"animal"</span><span class="p">:</span> <span class="s">"cat"</span><span class="p">,</span>
+    <span class="s">"owner"</span><span class="p">:</span> <span class="s">"Mr Heckles"</span>
+<span class="p">}</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="s">"{d[owner]} has a {d[animal]}. Or he could have a {d[animal]}. "</span> \
+       <span class="s">"You owe him a {d[animal]}."</span>
+
+<span class="n">text</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">my_dict</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'Mr Heckles has a cat. Or he could have a cat. You owe him a cat.'
+</code></pre></div></div>
+
+<p>Similar operations can be done using <strong>f-format</strong> (adding the prefix <strong><span style="font-family:Courier; color:black">f</span></strong> before the string) as in the example:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">owner</span> <span class="o">=</span> <span class="s">"Mr Heckles"</span>
+<span class="n">animal</span> <span class="o">=</span> <span class="s">"cat"</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s">"{owner} has a {animal}. Or he could have a {animal}. You owe him a {animal}."</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Mr Heckles has a cat. Or he could have a cat. You owe him a cat.
+</code></pre></div></div>
+
+<p>There is just a small difference when accessing dictionaries in f-strings. The index of the dictionary has to be put in quotes:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">"animal"</span><span class="p">:</span> <span class="s">"cat"</span><span class="p">,</span>
+    <span class="s">"owner"</span><span class="p">:</span> <span class="s">"Mr Heckles"</span>
+<span class="p">}</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s">"{my_dict[owner]} has a {my_dict[animal]}. "</span>
+      <span class="n">f</span><span class="s">"Or he could have a {my_dict[animal]}. "</span>
+      <span class="n">f</span><span class="s">"You owe him a {my_dict[animal]}."</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Traceback (most recent call last):
+  File "&lt;input&gt;", line 1, in &lt;module&gt;
+KeyError: 'Mr Heckles'
+</code></pre></div></div>
+<p><br /></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s">"{my_dict['owner']} has a {my_dict['animal']}. "</span>
+      <span class="n">f</span><span class="s">"Or he could have a {my_dict['animal']}. "</span>
+      <span class="n">f</span><span class="s">"You owe him a {my_dict['animal']}."</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Mr Heckles has a cat. Or he could have a cat. You owe him a cat.
+</code></pre></div></div>
+
+<p>One of the greatest advantages of f-strings is that they allow for inline operations…</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">number_1</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">number_2</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s">"{number_1} times {number_2} equals {number_1*number_2}"</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>10 times 4 equals 40
+</code></pre></div></div>
+
+<p>…or we can even call functions inside!</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">multiply</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span><span class="o">*</span><span class="n">b</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s">"{number_1} times {number_2} equals {multiply(number_1, number_2)}"</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>10 times 4 equals 40
+</code></pre></div></div>
+
+<p><strong><span style="font-family:Courier; color:black">f-strings</span></strong> were introduced in Python 3.6. Their use is advised as they are faster than <strong><span style="font-family:Courier; color:black">str.format()</span></strong> methods.</p>
+
+<h2 id="regular-expressions">Regular Expressions</h2>
+
+<p><strong>Regular Expressions</strong> (<strong>regex</strong>, <strong>regexp</strong>) are strings containing a combination of normal characters and special metacharacters used to describe patterns for finding text within a larger text. Potential use includes finding and replacing text, string validation or renaming a bunch of files. Python provides a package named <strong><span style="font-family:Courier; color:black">re</span></strong> for handling regex.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">re</span>
+</code></pre></div></div>
+
+<p>To find all matches of a pattern we use <strong><span style="font-family:Courier; color:black">findall()</span></strong> method. The result is a list of all matches found.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="s">"Mr Heckles has a cat. Or he could have a cat. You owe him a cat."</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"cat"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['cat', 'cat', 'cat']
+</code></pre></div></div>
+
+<p>To split a string at each pattern match we can use <strong><span style="font-family:Courier; color:black">split()</span></strong> method. In the example below the text is split by every match of exclamation mark. The result is a list of substrings.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="s">"Mr Heckles has a cat! Or he could have a cat! You owe him a cat!"</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r"!"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['Mr Heckles has a cat', ' Or he could have a cat', ' You owe him a cat', '']
+</code></pre></div></div>
+
+<p>With <strong><span style="font-family:Courier; color:black">sub()</span></strong> method matches can be replaced with another string.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r"!"</span><span class="p">,</span> <span class="s">"..."</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'Mr Heckles has a cat... Or he could have a cat... You owe him a cat...'
+</code></pre></div></div>
+
+<h3 id="metacharacters">Metacharacters</h3>
+
+<p><strong><span style="font-family:Courier; color:black">\d</span></strong> represents a digit:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tweets</span> <span class="o">=</span> <span class="s">"10 tweets by @user1. 15 tweets by @user624. 99 tweets by @userN"</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"\d"</span><span class="p">,</span> <span class="n">tweets</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['1', '0', '1', '1', '5', '6', '2', '4', '9', '9']
+</code></pre></div></div>
+
+<p><strong><span style="font-family:Courier; color:black">\D</span></strong> represents a non-digit:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"\D"</span><span class="p">,</span> <span class="n">tweets</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[' ', 't', 'w', 'e', 'e', 't', 's', ' ', 'b', 'y', ' ', '@', 'u', 's', 'e', 'r', '.', ' ', ' ', 't', 'w', 'e', 'e', 't', 's', ' ', 'b', 'y', ' ', '@', 'u', 's', 'e', 'r', '.', ' ', ' ', 't', 'w', 'e', 'e', 't', 's', ' ', 'b', 'y', ' ', '@', 'u', 's', 'e', 'r', 'N']
+</code></pre></div></div>
+
+<p>Using what we already learned we could search for example for usernames that are followed by at least one digit:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"user\d"</span><span class="p">,</span> <span class="n">tweets</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['user1', 'user6']
+</code></pre></div></div>
+
+<p><strong><span style="font-family:Courier; color:black">\w</span></strong> represents any word character (alphanumeric and underscore). Let’s find every occurence of string “user” followed by a word character:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"user\w"</span><span class="p">,</span> <span class="n">tweets</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['user1', 'user6', 'userN']
+</code></pre></div></div>
+
+<p><strong><span style="font-family:Courier; color:black">\W</span></strong> represents any non-word (special) character:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"\W"</span><span class="p">,</span> <span class="n">tweets</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[' ', ' ', ' ', '@', '.', ' ', ' ', ' ', ' ', '@', '.', ' ', ' ', ' ', ' ', '@']
+</code></pre></div></div>
+
+<p><strong><span style="font-family:Courier; color:black">\s</span></strong> represents a whitespace (i.e. the space, the tab, the newline and the carriage return):</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"\d\d\stweets"</span><span class="p">,</span> <span class="n">tweets</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['10 tweets', '15 tweets', '99 tweets']
+</code></pre></div></div>
+
+<p><strong><span style="font-family:Courier; color:black">\S</span></strong> represents a non-whitespace:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"user\S"</span><span class="p">,</span> <span class="n">tweets</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['user1', 'user6', 'userN']
+</code></pre></div></div>
+
+<p>With <strong><span style="font-family:Courier; color:black">sub()</span></strong> method we can replace a specific regex match with another string.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r"\sby"</span><span class="p">,</span> <span class="s">":"</span><span class="p">,</span> <span class="n">tweets</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'10 tweets: @user1. 15 tweets: @user624. 99 tweets: @userN'
+</code></pre></div></div>
+
+<h3 id="quantifiers">Quantifiers</h3>
+
+<p><strong><span style="font-family:Courier; color:black">search()</span></strong> method takes a regex pattern and a string and tells whether there is a match.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r"\d\d\stweets"</span><span class="p">,</span> <span class="n">tweets</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;re.Match object; span=(0, 9), match='10 tweets'&gt;
+</code></pre></div></div>
+<p><br /></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pswd</span> <span class="o">=</span> <span class="s">"password9876"</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r"\w\w\w\w\w\w\w\w\d\d\d\d"</span><span class="p">,</span> <span class="n">pswd</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;re.Match object; span=(0, 12), match='password9876'&gt;
+</code></pre></div></div>
+
+<p>A quantifier <strong><span style="font-family:Courier; color:black">{n}</span></strong> can be used to tell the regex engine how many times exactly a character on its left should be matched.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r"\w{8}\d{4}"</span><span class="p">,</span> <span class="n">pswd</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;re.Match object; span=(0, 12), match='password9876'&gt;
+</code></pre></div></div>
+
+<p>A <strong><span style="font-family:Courier; color:black">+</span></strong> tells to search for a pattern where a character on its left is matched <strong>one or more times</strong>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pswds</span> <span class="o">=</span> <span class="s">"password9876, password 1, password123, password"</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"password\d+"</span><span class="p">,</span> <span class="n">pswds</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['password9876', 'password123']
+</code></pre></div></div>
+
+<p>A <strong><span style="font-family:Courier; color:black">*</span></strong> tells to search for a pattern where a character on its left is matched <strong>zero or more times</strong>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"password\d*"</span><span class="p">,</span> <span class="n">pswds</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['password9876', 'password', 'password123', 'password']
+</code></pre></div></div>
+
+<p>A <strong><span style="font-family:Courier; color:black">?</span></strong> tells to search for a pattern where a character on its left is matched <strong>zero times or once</strong>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="s">"Center is American spelling. Centre is British"</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"Cente?re?"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['Center', 'Centre']
+</code></pre></div></div>
+
+<p>A <strong><span style="font-family:Courier; color:black">{n,m}</span></strong> quantifier tells to search for a pattern where a character on its left is matched at least <strong>n</strong> and at most <strong>m</strong> times.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pswds</span> <span class="o">=</span> <span class="s">"password9876, password11, password123, password"</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"password\d{3,4}"</span><span class="p">,</span> <span class="n">pswds</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['password9876', 'password123']
+</code></pre></div></div>
+<p><br /></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">phone_numbers</span> <span class="o">=</span> <span class="s">"123-123-1234, 1-1-100, 999-456-123456"</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"\d{3}-\d{3}-\d{4,}"</span><span class="p">,</span> <span class="n">phone_numbers</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['123-123-1234', '999-456-123456']
+</code></pre></div></div>
+
+<p>It’s important to remember that quantifiers apply to exactly one character immediately on their left.</p>
+
+<p><strong><span style="font-family:Courier; color:black">.</span></strong> matches any character except newline. If we want to actually search for a dot, we have to precede it by an escape character <strong><span style="font-family:Courier; color:black">\</span></strong>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_blog</span> <span class="o">=</span> <span class="s">"https://etlgirl.github.io/"</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"http.+"</span><span class="p">,</span> <span class="n">my_blog</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['https://etlgirl.github.io/']
+</code></pre></div></div>
+<p><br /></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"http.+\.com"</span><span class="p">,</span> <span class="n">my_blog</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[]
+</code></pre></div></div>
+<p><br /></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="s">"This is some text. It has 3 sentences. Let's split them."</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r"\.\s"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['This is some text', 'It has 3 sentences', "Let's split them."]
+</code></pre></div></div>
+
+<h3 id="search-vs-match">search() vs match()</h3>
+
+<p>There are two different methods that can be used to find a regex match - <strong><span style="font-family:Courier; color:black">search()</span></strong> and <strong><span style="font-family:Courier; color:black">match()</span></strong>. The difference is that the <strong><span style="font-family:Courier; color:black">match()</span></strong> method starts searching at the very beginning of a string. So in the following case both methods return the same result…</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="s">"Center is American spelling. Centre is British"</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r"Cente?re?"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">r"Cente?re?"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;re.Match object; span=(0, 6), match='Center'&gt;
+&lt;re.Match object; span=(0, 6), match='Center'&gt;
+</code></pre></div></div>
+
+<p>…but in this case the <strong><span style="font-family:Courier; color:black">match()</span></strong> method returns no result.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r"Centre"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">r"Centre"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;re.Match object; span=(29, 35), match='Centre'&gt;
+
+</code></pre></div></div>
+
+<h3 id="other-special-characters">Other Special Characters</h3>
+
+<p><strong><span style="font-family:Courier; color:black">^</span></strong> indicates that search for a match should be started at the beginning of a string.</p>
+
+<p><strong><span style="font-family:Courier; color:black">$</span></strong> indicates that search for a match should be done at the end of a string.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="s">"the 70s music is not as good as the 80s, but my favourite is the 90s"</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"the\s\d{2}s"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"^the\s\d{2}s"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"the\s\d{2}s$"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['the 70s', 'the 80s', 'the 90s']
+['the 70s']
+['the 90s']
+</code></pre></div></div>
+
+<p><strong><span style="font-family:Courier; color:black">|</span></strong> is an <strong>OR</strong> operator.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="s">"The 70s music is not as good as the 80s, but my favourite is the 90s"</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"the\s\d{2}s"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"The\s\d{2}s|the\s\d{2}s"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['the 80s', 'the 90s']
+['The 70s', 'the 80s', 'the 90s']
+</code></pre></div></div>
+
+<p>Square brackets <strong><span style="font-family:Courier; color:black">[ ]</span></strong> indicate a set of characters.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"[Tt]he\s\d{2}s"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['The 70s', 'the 80s', 'the 90s']
+</code></pre></div></div>
+
+<p>In below example we are looking for a <strong>set of one or more letters a-z either lower or uppercase</strong> followed by whitespace, two digits and an ‘s’.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"[a-zA-Z]+\s\d{2}s"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['The 70s', 'the 80s', 'the 90s']
+</code></pre></div></div>
+
+<p><strong><span style="font-family:Courier; color:black">^</span></strong> used within square brackets <strong>transforms the expression to negative</strong>. In the example below we look for usernames that do not start with a number.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">users</span> <span class="o">=</span> <span class="s">"@admin, @123crazyduck, @999guest"</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"@[^0-9,]+"</span><span class="p">,</span> <span class="n">users</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['@admin']
+</code></pre></div></div>
+
+<h2 id="greedy-vs-non-greedy-matching">Greedy vs Non-Greedy Matching</h2>
+
+<p>All quantifiers presented above (*, +, ?, {n,m}) are <strong>greedy operators</strong> by default. It means they try to match as many characters as possible (and so return the longest match possible).</p>
+
+<p><strong>Non-greedy (lazy)</strong> quantifiers try to match as few characters as possible, therefore returning the shortest possible match. We can obtain a non-greedy quantifier by appending a <strong><span style="font-family:Courier; color:black">?</span></strong> sign to a greedy quantifier.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">example</span> <span class="o">=</span> <span class="s">"12345example"</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">r"\d+"</span><span class="p">,</span> <span class="n">example</span><span class="p">)</span> <span class="c1"># greedy
+</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">r"\d+?"</span><span class="p">,</span> <span class="n">example</span><span class="p">)</span> <span class="c1"># non-greedy
+</span></code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;re.Match object; span=(0, 5), match='12345'&gt;
+&lt;re.Match object; span=(0, 1), match='1'&gt;
+</code></pre></div></div>
+
+<p>In the first example the quantifier will start by matching the first digit and then go on and search for more digits. It will keep going and match more and more digits until no other digit can be matched. The final result will be <em>12345</em>. Non-greedy quantifier when given the same pattern looks for a digit and after it finds the first one it stops, since one digit is as few as we need. The final result will be <em>1</em>.</p>
+
+<p>Below is an example of how non-greedy quantifiers can be used for removing HTML tags.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">html</span> <span class="o">=</span> <span class="s">"Example of an &lt;b&gt;HTML&lt;/b&gt; text. Let's remove &lt;i&gt;all tags&lt;/i&gt;!"</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r"&lt;.+?&gt;"</span><span class="p">,</span> <span class="s">""</span><span class="p">,</span> <span class="n">html</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"Example of an HTML text. Let's remove all tags!"
+</code></pre></div></div>
+
+<p>If we used a greedy quantifier it would match everything there is between the first opening tag and the last closing tag (and give a result that in this case makes absolutely no sense).</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r"&lt;.+&gt;"</span><span class="p">,</span> <span class="s">""</span><span class="p">,</span> <span class="n">html</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'Example of an !'
+</code></pre></div></div>
+
+<h2 id="capturing-groups">Capturing Groups</h2>
+
+<p>Let’s start by looking at an example:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="s">"All my friends have pets. Anna has 2 dogs. "</span> \
+       <span class="s">"Mark has 2 cats. And George has 101 fish!"</span>
+</code></pre></div></div>
+
+<p>The task is to obtain from the text information about the name of the pet owner, number of pets and the type of pet. This could be done as below:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"[A-Za-z]+\shas\s\d+\s[a-z]+"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['Anna has 2 dogs', 'Mark has 2 cats', 'George has 101 fish']
+</code></pre></div></div>
+
+<p>Not bad. However, we can use groups to get a result which can be easily transformed to pandas DataFrame or other <em>analysis-friendly</em> structure. Individual groups are placed in round brackets <strong><span style="font-family:Courier; color:black">()</span></strong>. They get numbers assigned to them starting from Group 1, and the whole regex expression is a Group 0.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"([A-Za-z]+)\shas\s(\d+)\s([a-z]+)"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+
+<span class="c1"># Group 1: ([A-Za-z]+)
+# Group 2: (\d+)
+# Group 3: ([a-z]+)
+</span>
+<span class="c1"># Group 0: ([A-Za-z]+)\shas\s(\d+)\s([a-z]+)
+</span></code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[('Anna', '2', 'dogs'), ('Mark', '2', 'cats'), ('George', '101', 'fish')]
+</code></pre></div></div>
+
+<p>The result is a list of tuples which can easily be converted to other data structures if needed.</p>
+
+<p>This is not the only advantage of groups. As it was previously mentioned, quantifiers apply to the character on their immediate left. By capturing a group we can apply a quantifier to a bigger part of regex. It is important though to know the difference between <strong>capturing a repeated group</strong> and <strong>repeating a capturing group</strong>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">numbers</span> <span class="o">=</span> <span class="s">"First number is 909. Second number is 1255."</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"(\d+)"</span><span class="p">,</span> <span class="n">numbers</span><span class="p">)</span>
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"(\d)+"</span><span class="p">,</span> <span class="n">numbers</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['909', '1255']
+['9', '5']
+</code></pre></div></div>
+
+<p>The second result might be somewhat surprising and not intuitive. More details about what happens there and why can be found here: <a href="https://stackoverflow.com/questions/49079552/understanding-the-d-d-regex-pattern-in-python">Understanding the (\D\d)+ Regex pattern in Python</a></p>
+
+<h2 id="alternation--non-capturing-groups">Alternation &amp; Non-Capturing Groups</h2>
+
+<p>Round brackets can also be used to group optional characters. Suppose we have a list of URLs as below and we want to find only those that end with .org or .com:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">urls</span> <span class="o">=</span> <span class="s">"https://www.wikipedia.org/, https://www.google.com/, "</span> \
+       <span class="s">"https://www.regular-expressions.info/, https://pumpkin27.github.io/"</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"www\.([a-zA-Z0-9]+)\.(org|com)"</span><span class="p">,</span> <span class="n">urls</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[('wikipedia', 'org'), ('google', 'com')]
+</code></pre></div></div>
+
+<p>Round brackets were used to group URLs endings we are interested in. Now, if we just want the middle part of a URL captured, we can add <strong><span style="font-family:Courier; color:black">?:</span></strong> inside the brackets just before the regex, to tell the regex engine to match the group, but not capture it.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"www\.([a-zA-Z0-9]+)\.(?:org|com)"</span><span class="p">,</span> <span class="n">urls</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['wikipedia', 'google']
+</code></pre></div></div>
+
+<h2 id="named-groups">Named Groups</h2>
+
+<p>As it was mentioned before, when groups are captured they receive their numbers starting from 1 and the whole regex gets number 0. We can use this to retrieve information about a specific group, as in the example below:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">urls</span> <span class="o">=</span> <span class="s">"https://www.wikipedia.org/, https://www.google.com/, "</span> \
+       <span class="s">"https://www.regular-expressions.info/, https://pumpkin27.github.io/"</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r"www\.([a-zA-Z0-9]+)\.(org|com)"</span><span class="p">,</span> <span class="n">urls</span><span class="p">)</span>
+
+<span class="n">result</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">result</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">result</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'www.wikipedia.org'
+'wikipedia'
+'org'
+</code></pre></div></div>
+
+<p>This method works only with <strong><span style="font-family:Courier; color:black">search()</span></strong> and <strong><span style="font-family:Courier; color:black">match()</span></strong> methods. Instead of using numbers, we can give names to the capturing groups. The syntax for naming groups is <strong><span style="font-family:Courier; color:black">(?P&lt;name&gt;regex)</span></strong>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">result</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r"www\.([a-zA-Z0-9]+)\.(?P&lt;top_level_domain&gt;org|com)"</span><span class="p">,</span> <span class="n">urls</span><span class="p">)</span>
+
+<span class="n">result</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">result</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s">'top_level_domain'</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'org'
+'org'
+</code></pre></div></div>
+
+<h2 id="backreferences">Backreferences</h2>
+
+<p>Backreferencing is using a numbered capturing group to match the same text again. For example, we can search for repeated words in a text:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="s">"I am so so happy writing this regex paper. "</span> \
+       <span class="s">"I am serious, it makes me very very very happy."</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"(\w+)\s\1"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['so', 'very']
+</code></pre></div></div>
+
+<p>In the regex pattern we match the group <strong>(\w+)</strong> which gets assigned number 1, then a whitespace and then we indicate that we want group number 1 captured again. Moreover, we can replace repeated words with only one occurence of it.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r"(\w+)\s\1"</span><span class="p">,</span> <span class="s">r"\1"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'I am so happy writing this regex paper. I am serious, it makes me very very happy.'
+</code></pre></div></div>
+
+<p>Notice that this worked nicely with the word <em>so</em> but there are still two occurences of <em>very</em> (we got rid of only one of them). Let’s modify our regex so that it finds one or more repetition of the capturing group:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>re.findall(r"(\w+)(?:\s\1)+", text)
+
+re.sub(r"(\w+)(?:\s\1)+", r"\1", text)
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['so', 'very']
+'I am so happy writing this regex paper. I am serious, it makes me very happy.'
+</code></pre></div></div>
+
+<p>Problem solved.</p>
+
+<p>Same thing can be done using names of groups. We can for example name our capturing group <em>repeated</em> and then look for the repetition of this group using its name.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"(?P&lt;repeated&gt;\w+)\s(?P=repeated)"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+
+<span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"(?P&lt;repeated&gt;\w+)(?:\s(?P=repeated))+"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['so', 'very']
+['so', 'very']
+</code></pre></div></div>
+
+<p>However in my opinion, while the first of above regex patterns does not look very complicated, the second one appears hard to understand due to nested brackets.</p>
+
+<p>To replace a named capturing group we need a special syntax in the replacement field <strong><span style="font-family:Courier; color:black">\g&lt;name&gt;</span></strong>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r"(?P&lt;repeated&gt;\w+)\s(?P=repeated)"</span><span class="p">,</span> <span class="s">r"\g&lt;repeated&gt;"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'I am so happy writing this regex paper. I am serious, it makes me very very happy.'
+</code></pre></div></div>
+
+<h2 id="looking-around">Looking Around</h2>
+
+<p>Lookaround groups are a type of non-capturing groups. Looking around is basically searching for what is surrounding a specific pattern. We can look around in four ways: <strong>negative or positive look ahead</strong> and <strong>negative or positive look behind</strong>. They are indicated in regex in following ways:</p>
+
+<ul>
+  <li>
+    <p>positive look-ahead: <strong><span style="font-family:Courier; color:black">?=pattern</span></strong></p>
+  </li>
+  <li>
+    <p>negative look-ahead: <strong><span style="font-family:Courier; color:black">?!pattern</span></strong></p>
+  </li>
+  <li>
+    <p>positive look-behind: <strong><span style="font-family:Courier; color:black">?&lt;=pattern</span></strong></p>
+  </li>
+  <li>
+    <p>negative look-behind: <strong><span style="font-family:Courier; color:black">?&lt;!pattern</span></strong></p>
+  </li>
+</ul>
+
+<p>Let’s consider four examples.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">files</span> <span class="o">=</span> <span class="s">"file1.txt: success, file2.txt: fail, "</span> \
+        <span class="s">"file1.csv: success, file2.xlsx: success"</span>
+</code></pre></div></div>
+
+<p>1) Find all .txt files that were successfully processed.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"\w+.txt(?=:\ssuccess)"</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span> <span class="c1"># positive look-ahead
+</span></code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['file1.txt']
+</code></pre></div></div>
+
+<p>2) Find all .txt files that were not successfully processed.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"\w+.txt(?!:\ssuccess)"</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span> <span class="c1"># negative look-ahead
+</span></code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['file2.txt']
+</code></pre></div></div>
+
+<p>3) Find all processing statuses of .txt files.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"\w+(?&lt;=\.txt):\s(\w+)"</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span> <span class="c1"># positive look-behind
+</span></code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['success', 'fail']
+</code></pre></div></div>
+
+<p>4) Find all processing statuses of files that are not .txt.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r"\w+(?&lt;!\.txt):\s(\w+)"</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span> <span class="c1"># negative look-behind
+</span></code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['success', 'success']
+</code></pre></div></div>
+
+<p>Congratulations on reaching the end of this post! Regex can be extremely difficult but they’re also a very powerful tool.</p>
+
+<p><em>Hope you enjoyed this article! In case of any questions and remarks, please leave a comment.</em></p>
+:ET

@@ -1,0 +1,1379 @@
+I"�,<p><strong><em>This tutorial is based on Oracle SQL.</em></strong></p>
+
+<h1 id="inner-join-with-common-key-column-name">INNER JOIN with common key column name</h1>
+
+<p>To begin let’s create two ultra-simple tables:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">left_table</span>
+  <span class="p">(</span>
+     <span class="n">id</span>  <span class="n">NUMBER</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="n">left_val</span> <span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span>
+     <span class="k">CONSTRAINT</span> <span class="n">left_table_pk</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span>
+  <span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">left_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'LEFT 1'</span><span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">left_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">'LEFT 2'</span><span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">left_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s1">'LEFT 3'</span><span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">left_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s1">'LEFT 4'</span><span class="p">);</span>
+
+<span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span>   <span class="n">left_table</span><span class="p">;</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-ggkl{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;text-align:left;vertical-align:top}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-au0w{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 50%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">ID</th>
+    <th class="tg-ag0r">LEFT_VAL</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+    <td class="tg-x4o0">LEFT 1</td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">2</td>
+    <td class="tg-au0w">LEFT 2</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">3</td>
+    <td class="tg-ggkl">LEFT 3</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">4</td>
+    <td class="tg-ggkl">LEFT 4</td>
+  </tr>
+</table>
+<p><br /></p>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">right_table</span>
+  <span class="p">(</span>
+     <span class="n">id</span>  <span class="n">NUMBER</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="n">right_val</span> <span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span>
+     <span class="k">CONSTRAINT</span> <span class="n">right_table_pk</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span>
+  <span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">right_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'RIGHT 1'</span><span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">right_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s1">'RIGHT 4'</span><span class="p">);</span>  
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">right_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s1">'RIGHT 5'</span><span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">right_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="s1">'RIGHT 6'</span><span class="p">);</span>
+
+<span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span>   <span class="n">right_table</span><span class="p">;</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-ggkl{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;text-align:left;vertical-align:top}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-au0w{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 50%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">ID</th>
+    <th class="tg-ag0r">RIGHT_VAL</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+    <td class="tg-x4o0">RIGHT 1</td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">4</td>
+    <td class="tg-au0w">RIGHT 4</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">5</td>
+    <td class="tg-ggkl">RIGHT 5</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">6</td>
+    <td class="tg-ggkl">RIGHT 6</td>
+  </tr>
+</table>
+
+<p>In our example <strong>ID</strong> columns in both tables are <strong>key fields</strong> since they can be used to reference one table to another. To perform an <strong>INNER JOIN</strong> (sometimes called <strong>simple join</strong>) we look for key matches in the right table corresponding to all key field entries of the left table. Here only values 1 and 4 are common for both tables. The <strong>INNER JOIN</strong> query and its result will then be:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span>   <span class="n">left_table</span> <span class="n">l</span>
+       <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">right_table</span> <span class="n">r</span>
+               <span class="k">ON</span> <span class="n">l</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">id</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-gvb5{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;border-color:inherit;text-align:left;vertical-align:top}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-ggkl{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;text-align:left;vertical-align:top}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-au0w{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 100%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">ID</th>
+    <th class="tg-ag0r">LEFT_VAL</th>
+    <th class="tg-gvb5">ID</th>
+    <th class="tg-gvb5">RIGHT_VAL</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+    <td class="tg-x4o0">LEFT 1</td>
+    <td class="tg-au0w">1</td>
+    <td class="tg-au0w">RIGHT 1</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">4</td>
+    <td class="tg-ggkl">LEFT 4</td>
+    <td class="tg-ggkl">4</td>
+    <td class="tg-ggkl">RIGHT 4</td>
+  </tr>
+</table>
+
+<p>Note the use of aliases <strong>l</strong> and <strong>r</strong> which reduce the amount of typing and make the query easier to read. Also you probably noticed that there is duplicated <strong>ID</strong> column. We can call specific columns in the <strong>SELECT</strong> statement:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">l</span><span class="p">.</span><span class="n">id</span><span class="p">,</span>
+       <span class="n">left_val</span><span class="p">,</span>
+       <span class="n">right_val</span>
+<span class="k">FROM</span>   <span class="n">left_table</span> <span class="n">l</span>
+       <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">right_table</span> <span class="n">r</span>
+               <span class="k">ON</span> <span class="n">l</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">id</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-gvb5{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;border-color:inherit;text-align:left;vertical-align:top}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-au0w{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 75%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">ID</th>
+    <th class="tg-ag0r">LEFT_VAL</th>
+    <th class="tg-gvb5">RIGHT_VAL</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+    <td class="tg-x4o0">LEFT 1</td>
+    <td class="tg-au0w">RIGHT 1</td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">4</td>
+    <td class="tg-au0w">LEFT 4</td>
+    <td class="tg-au0w">RIGHT 4</td>
+  </tr>
+</table>
+
+<p>Since the key column name is the same in both tables, the same join can be performed with <strong>USING</strong> keyword:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span>   <span class="n">left_table</span> <span class="n">l</span>
+       <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">right_table</span> <span class="n">r</span>
+<span class="k">USING</span> <span class="p">(</span><span class="n">id</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h1 id="inner-join-with-different-key-column-names">INNER JOIN with different key column names</h1>
+
+<p>Let’s create nearly identical tables as before, only this time instead of naming key columns <strong>ID</strong> in both tables, we will name them <strong>LEFT_ID</strong> and <strong>RIGHT_ID</strong>. Note that if you created tables for the previous example, you will need to drop them first.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">DROP</span> <span class="k">TABLE</span> <span class="n">left_table</span><span class="p">;</span>
+
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">left_table</span>
+  <span class="p">(</span>
+     <span class="n">left_id</span>  <span class="n">NUMBER</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="n">left_val</span> <span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span>
+     <span class="k">CONSTRAINT</span> <span class="n">left_table_pk</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">left_id</span><span class="p">)</span>
+  <span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">left_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'LEFT 1'</span><span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">left_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">'LEFT 2'</span><span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">left_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s1">'LEFT 3'</span><span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">left_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s1">'LEFT 4'</span><span class="p">);</span>
+
+<span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span>   <span class="n">left_table</span><span class="p">;</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-ggkl{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;text-align:left;vertical-align:top}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-au0w{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 50%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">LEFT_ID</th>
+    <th class="tg-ag0r">LEFT_VAL</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+    <td class="tg-x4o0">LEFT 1</td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">2</td>
+    <td class="tg-au0w">LEFT 2</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">3</td>
+    <td class="tg-ggkl">LEFT 3</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">4</td>
+    <td class="tg-ggkl">LEFT 4</td>
+  </tr>
+</table>
+<p><br /></p>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">DROP</span> <span class="k">TABLE</span> <span class="n">right_table</span><span class="p">;</span>
+
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">right_table</span>
+  <span class="p">(</span>
+     <span class="n">right_id</span>  <span class="n">NUMBER</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="n">right_val</span> <span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span>
+     <span class="k">CONSTRAINT</span> <span class="n">right_table_pk</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">right_id</span><span class="p">)</span>
+  <span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">right_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'RIGHT 1'</span><span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">right_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s1">'RIGHT 4'</span><span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">right_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s1">'RIGHT 5'</span><span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">right_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="s1">'RIGHT 6'</span><span class="p">);</span>
+
+<span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span>   <span class="n">right_table</span><span class="p">;</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-ggkl{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;text-align:left;vertical-align:top}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-au0w{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 50%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">RIGHT_ID</th>
+    <th class="tg-ag0r">RIGHT_VAL</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+    <td class="tg-x4o0">RIGHT 1</td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">4</td>
+    <td class="tg-au0w">RIGHT 4</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">5</td>
+    <td class="tg-ggkl">RIGHT 5</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">6</td>
+    <td class="tg-ggkl">RIGHT 6</td>
+  </tr>
+</table>
+
+<p>The inner join query is then constructed as follows:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span>   <span class="n">left_table</span> <span class="n">l</span>
+       <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">right_table</span> <span class="n">r</span>
+               <span class="k">ON</span> <span class="n">l</span><span class="p">.</span><span class="n">left_id</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">right_id</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-gvb5{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;border-color:inherit;text-align:left;vertical-align:top}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-ggkl{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;text-align:left;vertical-align:top}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-au0w{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 100%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">LEFT_ID</th>
+    <th class="tg-ag0r">LEFT_VAL</th>
+    <th class="tg-gvb5">RIGHT_ID</th>
+    <th class="tg-gvb5">RIGHT_VAL</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+    <td class="tg-x4o0">LEFT 1</td>
+    <td class="tg-au0w">1</td>
+    <td class="tg-au0w">RIGHT 1</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">4</td>
+    <td class="tg-ggkl">LEFT 4</td>
+    <td class="tg-ggkl">4</td>
+    <td class="tg-ggkl">RIGHT 4</td>
+  </tr>
+</table>
+
+<p>Again, we could select specific columns within <strong>SELECT</strong> statement if we didn’t want to see duplicate values. We can also perform <strong>INNER JOIN</strong> with more than two tables. Let’s now create a third table:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">another_table</span>
+  <span class="p">(</span>
+     <span class="n">another_id</span>  <span class="n">NUMBER</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="n">another_val</span> <span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span>
+     <span class="k">CONSTRAINT</span> <span class="n">another_table_pk</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">another_id</span><span class="p">)</span>
+  <span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">another_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'ANOTHER 1'</span><span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">another_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s1">'ANOTHER 3'</span><span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">another_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s1">'ANOTHER 5'</span><span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">another_table</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="s1">'ANOTHER 7'</span><span class="p">);</span>
+
+<span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span>   <span class="n">another_table</span><span class="p">;</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-ggkl{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;text-align:left;vertical-align:top}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-au0w{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 50%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">ANOTHER_ID</th>
+    <th class="tg-ag0r">ANOTHER_VAL</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+    <td class="tg-x4o0">ANOTHER 1</td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">3</td>
+    <td class="tg-au0w">ANOTHER 3</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">5</td>
+    <td class="tg-ggkl">ANOTHER 5</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">7</td>
+    <td class="tg-ggkl">ANOTHER 7</td>
+  </tr>
+</table>
+
+<p>Only ID value = 1 is common for all three tables so this will be the only record preserved after joining all of them:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">left_id</span><span class="p">,</span>
+       <span class="n">left_val</span><span class="p">,</span>
+       <span class="n">right_val</span><span class="p">,</span>
+       <span class="n">another_val</span>
+<span class="k">FROM</span>   <span class="n">left_table</span> <span class="n">l</span>
+       <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">right_table</span> <span class="n">r</span>
+               <span class="k">ON</span> <span class="n">l</span><span class="p">.</span><span class="n">left_id</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">right_id</span>
+       <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">another_table</span> <span class="n">a</span>
+               <span class="k">ON</span> <span class="n">l</span><span class="p">.</span><span class="n">left_id</span> <span class="o">=</span> <span class="n">a</span><span class="p">.</span><span class="n">another_id</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-gvb5{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;border-color:inherit;text-align:left;vertical-align:top}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-au0w{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 100%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">LEFT_ID</th>
+    <th class="tg-ag0r">LEFT_VAL</th>
+    <th class="tg-gvb5">RIGHT_VAL</th>
+    <th class="tg-gvb5">ANOTHER_VAL</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+    <td class="tg-x4o0">LEFT 1</td>
+    <td class="tg-au0w">RIGHT 1</td>
+    <td class="tg-au0w">ANOTHER 1</td>
+  </tr>
+</table>
+
+<h1 id="self-join">SELF JOIN</h1>
+
+<p>Let’s create a little bit different table to see how joining table with itself might be useful.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">company</span>
+  <span class="p">(</span>
+     <span class="n">employee_id</span>   <span class="n">NUMBER</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+     <span class="n">employee_name</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span>
+     <span class="n">manager_id</span>    <span class="n">NUMBER</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+  <span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">company</span>
+<span class="k">VALUES</span>      <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="s1">'Mark'</span><span class="p">,</span> <span class="k">NULL</span><span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">company</span>
+<span class="k">VALUES</span>      <span class="p">(</span><span class="mi">205</span><span class="p">,</span> <span class="s1">'Fred'</span><span class="p">,</span> <span class="mi">200</span><span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">company</span>
+<span class="k">VALUES</span>      <span class="p">(</span><span class="mi">207</span><span class="p">,</span> <span class="s1">'Peter'</span><span class="p">,</span> <span class="mi">200</span><span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">company</span>
+<span class="k">VALUES</span>      <span class="p">(</span><span class="mi">210</span><span class="p">,</span> <span class="s1">'Anna'</span><span class="p">,</span> <span class="mi">207</span><span class="p">);</span>
+
+<span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span>   <span class="n">company</span><span class="p">;</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-ggkl{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;text-align:left;vertical-align:top}
+.tg .tg-fk1o{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;text-align:left;vertical-align:top}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 75%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">EMPLOYEE_ID</th>
+    <th class="tg-ag0r">EMPLOYEE_NAME</th>
+    <th class="tg-fk1o">MANAGER_ID</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">200</td>
+    <td class="tg-x4o0">Mark</td>
+    <td class="tg-ggkl"> - </td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">205</td>
+    <td class="tg-x4o0">Fred</td>
+    <td class="tg-ggkl">200</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">207</td>
+    <td class="tg-x4o0">Peter</td>
+    <td class="tg-ggkl">200</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">210</td>
+    <td class="tg-x4o0">Anna</td>
+    <td class="tg-ggkl">207</td>
+  </tr>
+</table>
+
+<p>Self join is performed just like inner join, except now we join the table with itself. The name of the table appears twice in the query, hence it has to be followed by aliases. We could perform a self join on the <strong>company</strong> table to see not only IDs of employees’ managers, but managers’ names as well:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">c1</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span>
+       <span class="n">c1</span><span class="p">.</span><span class="n">employee_name</span><span class="p">,</span>
+       <span class="n">c1</span><span class="p">.</span><span class="n">manager_id</span><span class="p">,</span>
+       <span class="n">c2</span><span class="p">.</span><span class="n">employee_name</span> <span class="k">AS</span> <span class="n">manager_name</span>
+<span class="k">FROM</span>   <span class="n">company</span> <span class="n">c1</span>
+       <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">company</span> <span class="n">c2</span>
+               <span class="k">ON</span> <span class="n">c1</span><span class="p">.</span><span class="n">manager_id</span> <span class="o">=</span> <span class="n">c2</span><span class="p">.</span><span class="n">employee_id</span><span class="p">;</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-ggkl{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;text-align:left;vertical-align:top}
+.tg .tg-fk1o{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;text-align:left;vertical-align:top}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 100%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">EMPLOYEE_ID</th>
+    <th class="tg-ag0r">EMPLOYEE_NAME</th>
+    <th class="tg-fk1o">MANAGER_ID</th>
+    <th class="tg-fk1o">MANAGER_NAME</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">205</td>
+    <td class="tg-x4o0">Fred</td>
+    <td class="tg-ggkl">200</td>
+    <td class="tg-ggkl">Mark</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">207</td>
+    <td class="tg-x4o0">Peter</td>
+    <td class="tg-ggkl">200</td>
+    <td class="tg-ggkl">Mark</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">210</td>
+    <td class="tg-x4o0">Anna</td>
+    <td class="tg-ggkl">207</td>
+    <td class="tg-ggkl">Peter</td>
+  </tr>
+</table>
+
+<h1 id="left-join--right-join">LEFT JOIN &amp; RIGHT JOIN</h1>
+
+<p>In <strong>LEFT JOIN</strong> all original records from the left table are preserved, even those that do not have matches in the right table. The syntax is similar to the syntax of inner join.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span>   <span class="n">left_table</span> <span class="n">l</span>
+       <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">right_table</span> <span class="n">r</span>
+              <span class="k">ON</span> <span class="n">l</span><span class="p">.</span><span class="n">left_id</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">right_id</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-gvb5{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;border-color:inherit;text-align:left;vertical-align:top}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-ggkl{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;text-align:left;vertical-align:top}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-au0w{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 100%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">LEFT_ID</th>
+    <th class="tg-ag0r">LEFT_VAL</th>
+    <th class="tg-gvb5">RIGHT_ID</th>
+    <th class="tg-gvb5">RIGHT_VAL</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+    <td class="tg-x4o0">LEFT 1</td>
+    <td class="tg-au0w">1</td>
+    <td class="tg-au0w">RIGHT 1</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">4</td>
+    <td class="tg-x4o0">LEFT 4</td>
+    <td class="tg-au0w">4</td>
+    <td class="tg-au0w">RIGHT 4</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">2</td>
+    <td class="tg-x4o0">LEFT 2</td>
+    <td class="tg-au0w"> - </td>
+    <td class="tg-au0w"> - </td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">3</td>
+    <td class="tg-ggkl">LEFT 3</td>
+    <td class="tg-ggkl"> - </td>
+    <td class="tg-ggkl"> - </td>
+  </tr>
+</table>
+
+<p>Analogically, in <strong>RIGHT JOIN</strong> all original records from right table are preserved, even those that do not have matches in the left table. Right joins are generally less often used.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span>   <span class="n">left_table</span> <span class="n">l</span>
+       <span class="k">RIGHT</span> <span class="k">JOIN</span> <span class="n">right_table</span> <span class="n">r</span>
+               <span class="k">ON</span> <span class="n">l</span><span class="p">.</span><span class="n">left_id</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">right_id</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-gvb5{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;border-color:inherit;text-align:left;vertical-align:top}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-ggkl{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;text-align:left;vertical-align:top}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-au0w{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 100%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">LEFT_ID</th>
+    <th class="tg-ag0r">LEFT_VAL</th>
+    <th class="tg-gvb5">RIGHT_ID</th>
+    <th class="tg-gvb5">RIGHT_VAL</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+    <td class="tg-x4o0">LEFT 1</td>
+    <td class="tg-au0w">1</td>
+    <td class="tg-au0w">RIGHT 1</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">4</td>
+    <td class="tg-x4o0">LEFT 4</td>
+    <td class="tg-au0w">4</td>
+    <td class="tg-au0w">RIGHT 4</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0"> - </td>
+    <td class="tg-x4o0"> - </td>
+    <td class="tg-au0w">6</td>
+    <td class="tg-au0w">RIGHT 6</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl"> - </td>
+    <td class="tg-ggkl"> - </td>
+    <td class="tg-ggkl">5</td>
+    <td class="tg-ggkl">RIGHT 5</td>
+  </tr>
+</table>
+
+<h1 id="full-outer-join">FULL OUTER JOIN</h1>
+
+<p><strong>FULL OUTER JOIN</strong> is a combination of left join and right join. It returns all records from both tables whether they have matches in the other table or not.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span>   <span class="n">left_table</span> <span class="n">l</span>
+       <span class="k">FULL</span> <span class="k">OUTER</span> <span class="k">JOIN</span> <span class="n">right_table</span> <span class="n">r</span>
+                    <span class="k">ON</span> <span class="n">l</span><span class="p">.</span><span class="n">left_id</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">right_id</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-gvb5{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;border-color:inherit;text-align:left;vertical-align:top}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-ggkl{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;text-align:left;vertical-align:top}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-au0w{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 100%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">LEFT_ID</th>
+    <th class="tg-ag0r">LEFT_VAL</th>
+    <th class="tg-gvb5">RIGHT_ID</th>
+    <th class="tg-gvb5">RIGHT_VAL</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+    <td class="tg-x4o0">LEFT 1</td>
+    <td class="tg-au0w">1</td>
+    <td class="tg-au0w">RIGHT 1</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">4</td>
+    <td class="tg-x4o0">LEFT 4</td>
+    <td class="tg-au0w">4</td>
+    <td class="tg-au0w">RIGHT 4</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0"> - </td>
+    <td class="tg-x4o0"> - </td>
+    <td class="tg-au0w">5</td>
+    <td class="tg-au0w">RIGHT 5</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl"> - </td>
+    <td class="tg-ggkl"> - </td>
+    <td class="tg-ggkl">6</td>
+    <td class="tg-ggkl">RIGHT 6</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">2</td>
+    <td class="tg-ggkl">LEFT 2</td>
+    <td class="tg-ggkl"> - </td>
+    <td class="tg-ggkl"> - </td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">3</td>
+    <td class="tg-ggkl">LEFT 3</td>
+    <td class="tg-ggkl"> - </td>
+    <td class="tg-ggkl"> - </td>
+  </tr>
+</table>
+
+<p>Note that the order of tables in a query matters. If we switch their order, the output is slightly different.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span>   <span class="n">right_table</span> <span class="n">r</span>
+       <span class="k">FULL</span> <span class="k">OUTER</span> <span class="k">JOIN</span> <span class="n">left_table</span> <span class="n">l</span>
+                    <span class="k">ON</span> <span class="n">l</span><span class="p">.</span><span class="n">left_id</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">right_id</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-gvb5{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;border-color:inherit;text-align:left;vertical-align:top}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-au0w{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 100%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">RIGHT_ID</th>
+    <th class="tg-ag0r">RIGHT_VAL</th>
+    <th class="tg-gvb5">LEFT_ID</th>
+    <th class="tg-gvb5">LEFT_VAL</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+    <td class="tg-x4o0">RIGHT 1</td>
+    <td class="tg-au0w">1</td>
+    <td class="tg-au0w">LEFT 1</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0"> - </td>
+    <td class="tg-x4o0"> - </td>
+    <td class="tg-au0w">2</td>
+    <td class="tg-au0w">LEFT 2</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0"> - </td>
+    <td class="tg-x4o0"> - </td>
+    <td class="tg-au0w">3</td>
+    <td class="tg-au0w">LEFT 3</td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">4</td>
+    <td class="tg-au0w">RIGHT 4</td>
+    <td class="tg-au0w">4</td>
+    <td class="tg-au0w">LEFT 4</td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">6</td>
+    <td class="tg-au0w">RIGHT 6</td>
+    <td class="tg-au0w"> - </td>
+    <td class="tg-au0w"> - </td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">5</td>
+    <td class="tg-au0w">RIGHT 5</td>
+    <td class="tg-au0w"> - </td>
+    <td class="tg-au0w"> - </td>
+  </tr>
+</table>
+
+<h1 id="cross-join">CROSS JOIN</h1>
+
+<p><strong>CROSS JOIN</strong> creates a combination of all rows from the right table with all rows from the left table. If there are <strong>x</strong> rows in one of the tables and <strong>y</strong> rows in the other, the resulting table will have <strong>x*y</strong> rows. In other words, if two tables are joined with cross join with no condition, the query returns their <strong>Cartesian product</strong>.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span>   <span class="n">right_table</span>
+       <span class="k">CROSS</span> <span class="k">JOIN</span> <span class="n">left_table</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-gvb5{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;border-color:inherit;text-align:left;vertical-align:top}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-ggkl{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;text-align:left;vertical-align:top}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-au0w{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 100%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">RIGHT_ID</th>
+    <th class="tg-ag0r">RIGHT_VAL</th>
+    <th class="tg-gvb5">LEFT_ID</th>
+    <th class="tg-gvb5">LEFT_VAL</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+    <td class="tg-x4o0">RIGHT 1</td>
+    <td class="tg-au0w">1</td>
+    <td class="tg-au0w">LEFT 1</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+    <td class="tg-x4o0">RIGHT 1</td>
+    <td class="tg-au0w">2</td>
+    <td class="tg-au0w">LEFT 2</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+    <td class="tg-x4o0">RIGHT 1</td>
+    <td class="tg-au0w">3</td>
+    <td class="tg-au0w">LEFT 3</td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">1</td>
+    <td class="tg-au0w">RIGHT 1</td>
+    <td class="tg-au0w">4</td>
+    <td class="tg-au0w">LEFT 4</td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">4</td>
+    <td class="tg-au0w">RIGHT 4</td>
+    <td class="tg-au0w">1</td>
+    <td class="tg-au0w">LEFT 1</td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">4</td>
+    <td class="tg-au0w">RIGHT 4</td>
+    <td class="tg-au0w">2</td>
+    <td class="tg-au0w">LEFT 2</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">4</td>
+    <td class="tg-ggkl">RIGHT 4</td>
+    <td class="tg-ggkl">3</td>
+    <td class="tg-ggkl">LEFT 3</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">4</td>
+    <td class="tg-ggkl">RIGHT 4</td>
+    <td class="tg-ggkl">4</td>
+    <td class="tg-ggkl">LEFT 4</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">5</td>
+    <td class="tg-ggkl">RIGHT 5</td>
+    <td class="tg-ggkl">1</td>
+    <td class="tg-ggkl">LEFT 1</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">5</td>
+    <td class="tg-ggkl">RIGHT 5</td>
+    <td class="tg-ggkl">2</td>
+    <td class="tg-ggkl">LEFT 2</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">5</td>
+    <td class="tg-ggkl">RIGHT 5</td>
+    <td class="tg-ggkl">3</td>
+    <td class="tg-ggkl">LEFT 3</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">5</td>
+    <td class="tg-ggkl">RIGHT 5</td>
+    <td class="tg-ggkl">4</td>
+    <td class="tg-ggkl">LEFT 4</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">6</td>
+    <td class="tg-ggkl">RIGHT 6</td>
+    <td class="tg-ggkl">1</td>
+    <td class="tg-ggkl">LEFT 1</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">6</td>
+    <td class="tg-ggkl">RIGHT 6</td>
+    <td class="tg-ggkl">2</td>
+    <td class="tg-ggkl">LEFT 2</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">6</td>
+    <td class="tg-ggkl">RIGHT 6</td>
+    <td class="tg-ggkl">3</td>
+    <td class="tg-ggkl">LEFT 3</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">6</td>
+    <td class="tg-ggkl">RIGHT 6</td>
+    <td class="tg-ggkl">4</td>
+    <td class="tg-ggkl">LEFT 4</td>
+  </tr>
+</table>
+
+<h1 id="venn-diagrams--set-operations">VENN DIAGRAMS &amp; SET OPERATIONS</h1>
+
+<p><strong>Venn diagrams</strong> are used to show all possible logical relations between a collection of different sets. Each circle in the diagram represents a table of data. The shading shows what is included in the result of a particular set operation:</p>
+
+<p><strong>UNION</strong> includes all records from both tables. Records that appear in both tables are shown only once in the result (in other words it returns only <strong>distinct values</strong>).</p>
+
+<p><img src="\assets\img\2019-08-01-sql_joins\union.png" width="20%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">left_id</span>
+<span class="k">FROM</span>   <span class="n">left_table</span>
+<span class="k">UNION</span>
+<span class="k">SELECT</span> <span class="n">right_id</span>
+<span class="k">FROM</span>   <span class="n">right_table</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-au0w{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 25%">
+<colgroup>
+<col style="width: 25px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">LEFT_ID</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">2</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">3</td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">4</td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">5</td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">6</td>
+  </tr>
+</table>
+
+<p><strong>UNION ALL</strong> also includes all records from both tables. However this time, records that appear in both tables will be shown twice in the result (they will be <strong>duplicated</strong>).</p>
+
+<p><img src="\assets\img\2019-08-01-sql_joins\union_all.png" width="20%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">left_id</span>
+<span class="k">FROM</span>   <span class="n">left_table</span>
+<span class="k">UNION</span> <span class="k">ALL</span>
+<span class="k">SELECT</span> <span class="n">right_id</span>
+<span class="k">FROM</span>   <span class="n">right_table</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-ggkl{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;text-align:left;vertical-align:top}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-au0w{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 25%">
+<colgroup>
+<col style="width: 25px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">LEFT_ID</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">2</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">3</td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">4</td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">1</td>
+  </tr>
+  <tr>
+    <td class="tg-au0w">4</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">5</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">6</td>
+  </tr>
+</table>
+
+<p><strong>INTERSECT</strong> includes only those records that are found in both tables.</p>
+
+<p><img src="\assets\img\2019-08-01-sql_joins\intersect.png" width="20%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">left_id</span>
+<span class="k">FROM</span>   <span class="n">left_table</span>
+<span class="k">INTERSECT</span>
+<span class="k">SELECT</span> <span class="n">right_id</span>
+<span class="k">FROM</span>   <span class="n">right_table</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 25%">
+<colgroup>
+<col style="width: 25px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">LEFT_ID</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">4</td>
+  </tr>
+</table>
+
+<p><strong>MINUS</strong> includes all the records from one table that are not found in the other (<em>in some other SQL DB versions, like SQL Server, PostgreSQL or SQLite, the equivalent for MINUS keyword is <strong>EXCEPT</strong></em>).</p>
+
+<p><img src="\assets\img\2019-08-01-sql_joins\except.png" width="20%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">left_id</span>
+<span class="k">FROM</span>   <span class="n">left_table</span>
+<span class="n">MINUS</span>
+<span class="k">SELECT</span> <span class="n">right_id</span>
+<span class="k">FROM</span>   <span class="n">right_table</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 25%">
+<colgroup>
+<col style="width: 25px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">LEFT_ID</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">2</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">3</td>
+  </tr>
+</table>
+
+<p>It’s important that the fields included in all above operations are of the same data type since they appear on top of one another in the result.</p>
+
+<hr />
+
+<h1 id="semi-joins--anti-joins">SEMI-JOINS &amp; ANTI-JOINS</h1>
+
+<p>The <strong>SEMI-JOIN</strong> chooses all records from the first table that satisfy the condition which is based on the second table.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">left_id</span>
+<span class="k">FROM</span>   <span class="n">left_table</span>
+<span class="k">WHERE</span>  <span class="n">left_id</span> <span class="k">IN</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">right_id</span>
+                   <span class="k">FROM</span>   <span class="n">right_table</span><span class="p">)</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 25%">
+<colgroup>
+<col style="width: 25px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">LEFT_ID</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">4</td>
+  </tr>
+</table>
+
+<p>The <strong>ANTI-JOIN</strong> chooses all records from the first that <strong>do not</strong> satisfy the condition which is based on the second table.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">left_id</span>
+<span class="k">FROM</span>   <span class="n">left_table</span>
+<span class="k">WHERE</span>  <span class="n">left_id</span> <span class="k">NOT</span> <span class="k">IN</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">right_id</span>
+                   <span class="k">FROM</span>   <span class="n">right_table</span><span class="p">)</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 25%">
+<colgroup>
+<col style="width: 25px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">LEFT_ID</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">2</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">3</td>
+  </tr>
+</table>
+
+<p>These types of joins do not have their own special syntax like inner or outer joins have. They are rather a way of filtering rows of one table using rows of another table.</p>
+
+<hr />
+
+<h1 id="subqueries-nested-queries">SUBQUERIES (NESTED QUERIES)</h1>
+
+<p>A subquery in SQL is a query embedded within another query. It may appear inside <strong>WHERE</strong> (most common), <strong>SELECT</strong> or <strong>FROM</strong> clause.</p>
+
+<h2 id="subqueries-inside-where-clause">SUBQUERIES INSIDE WHERE CLAUSE</h2>
+
+<p>Subqueries (<strong>inner queries</strong> or <strong>inner selects</strong>) do not have any type of special syntax, they are simply regular queries placed inside parentheses somewhere in a larger query (<strong>outer query</strong> or <strong>outer select</strong>). The inner query is executed first and its result is then passed to the parent query. We can use any kind of comparison operators such as &gt;, &lt; or = to compare this result with some other expression.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span>   <span class="n">right_table</span>
+<span class="k">WHERE</span>  <span class="n">right_id</span> <span class="o">&gt;</span> <span class="p">(</span><span class="k">SELECT</span> <span class="k">MAX</span><span class="p">(</span><span class="n">left_id</span><span class="p">)</span>
+                   <span class="k">FROM</span>   <span class="n">left_table</span><span class="p">)</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-ggkl{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;text-align:left;vertical-align:top}
+.tg .tg-gdgg{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;text-align:left;vertical-align:top}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 50%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">RIGHT_ID</th>
+    <th class="tg-gdgg">RIGHT_VAL</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">5</td>
+    <td class="tg-ggkl">RIGHT 5</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">6</td>
+    <td class="tg-ggkl">RIGHT 6</td>
+  </tr>
+</table>
+
+<p>Above query results in all records from the right table which id is greater than the maximum id from the left table.</p>
+
+<h2 id="subqueries-inside-select-clause">SUBQUERIES INSIDE SELECT CLAUSE</h2>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="k">DISTINCT</span> <span class="n">right_id</span><span class="p">,</span>
+                <span class="p">(</span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+                 <span class="k">FROM</span>   <span class="n">left_table</span>
+                 <span class="k">WHERE</span>  <span class="n">left_table</span><span class="p">.</span><span class="n">left_id</span> <span class="o">=</span> <span class="n">right_table</span><span class="p">.</span><span class="n">right_id</span><span class="p">)</span> <span class="k">AS</span>
+                <span class="n">left_id_count</span>
+<span class="k">FROM</span> <span class="n">right_table</span>  
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-ggkl{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;text-align:left;vertical-align:top}
+.tg .tg-gdgg{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;text-align:left;vertical-align:top}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 50%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">RIGHT_ID</th>
+    <th class="tg-gdgg">LEFT_ID_COUNT</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">1</td>
+    <td class="tg-ggkl">1</td>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">4</td>
+    <td class="tg-ggkl">1</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">5</td>
+    <td class="tg-ggkl">0</td>
+  </tr>
+  <tr>
+    <td class="tg-ggkl">6</td>
+    <td class="tg-ggkl">0</td>
+  </tr>
+</table>
+
+<p>Above query may seem a little bit complicated at the first glance. What it does is it takes all id values from the right table and counts how many times they appear in the left table.</p>
+
+<h2 id="subqueries-inside-from-clause">SUBQUERIES INSIDE FROM CLAUSE</h2>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">right_table</span><span class="p">.</span><span class="n">right_id</span><span class="p">,</span>
+       <span class="n">subquery1</span><span class="p">.</span><span class="n">left_max_id</span>
+<span class="k">FROM</span>   <span class="n">right_table</span><span class="p">,</span>
+       <span class="p">(</span><span class="k">SELECT</span> <span class="k">MAX</span><span class="p">(</span><span class="n">left_id</span><span class="p">)</span> <span class="k">AS</span> <span class="n">left_max_id</span>
+        <span class="k">FROM</span>   <span class="n">left_table</span><span class="p">)</span> <span class="n">subquery1</span>
+<span class="k">WHERE</span>  <span class="n">subquery1</span><span class="p">.</span><span class="n">left_max_id</span> <span class="o">=</span> <span class="n">right_table</span><span class="p">.</span><span class="n">right_id</span><span class="p">;</span>
+</code></pre></div></div>
+<p>Output:</p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-ag0r{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-ggkl{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;text-align:left;vertical-align:top}
+.tg .tg-gdgg{font-weight:bold;font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;background-color:#efefef;color:#000000;text-align:left;vertical-align:top}
+.tg .tg-x4o0{font-size:12px;font-family:Verdana, Geneva, sans-serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
+</style>
+
+<table class="tg" style="undefined;table-layout: fixed; width: 50%">
+<colgroup>
+<col style="width: 100px" />
+<col style="width: 100px" />
+</colgroup>
+  <tr>
+    <th class="tg-ag0r">RIGHT_ID</th>
+    <th class="tg-gdgg">LEFT_MAX_ID</th>
+  </tr>
+  <tr>
+    <td class="tg-x4o0">4</td>
+    <td class="tg-ggkl">4</td>
+  </tr>
+</table>
+
+<p>The above query basically checks if maximum id from left table can be found within id values of right table.</p>
+
+<hr />
+
+<p>To sum up, there are six types of SQL joins: <strong>INNER JOIN</strong> with its special case <strong>SELF JOIN</strong>, three outer joins (<strong>LEFT JOIN</strong>, <strong>RIGHT JOIN</strong> and <strong>FULL OUTER JOIN</strong>) and <strong>CROSS JOIN</strong>. Data can also be joined using set operations: <strong>UNION</strong>, <strong>UNION ALL</strong>, <strong>INTERSECT</strong> and <strong>EXCEPT</strong>. Finally, we can use <strong>SUBQUERIES</strong> for semi-joins and anti-joins. Subqueries may occur in three places within outer query: in WHERE, SELECT of FROM clause.</p>
+
+<p><em>Hope you enjoyed this article! In case of any questions and remarks, please leave a comment.</em></p>
+:ET

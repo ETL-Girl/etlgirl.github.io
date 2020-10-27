@@ -1,0 +1,319 @@
+I"�c<p>Gaps and Islands problem appears when there is a <strong>sequence of rows</strong> in a table that should appear at some <strong>regular intervals</strong> (daily measures of temperature, weekly summary of sales, etc.) but <strong>some entries are missing</strong>. Although such issue appears most often in data ordered by a date or a timestamp, in general it can be any sequence ordered by any other type of column which could be defined as a sequence of consecutive values (integers, alphabet letters and so on). Islands refer to chunks of sorted consecutive records and gaps are simply missing values between the islands. This might sound a little bit enigmatic but it reality is very intuitive. If we have a dataset of some measures taken in March 2020 ordered by day and there are missing measures for 10th and 24th of March (for whatever reason), the gaps and islands are as follows:</p>
+
+<p>Island: 1<sup>st</sup> - 9<sup>th</sup> March</p>
+
+<p>Gap: 10<sup>th</sup> March</p>
+
+<p>Island: 11<sup>th</sup> - 23<sup>th</sup> March</p>
+
+<p>Gap: 24<sup>th</sup> March</p>
+
+<p>Island: 25<sup>th</sup> - 31<sup>st</sup> March</p>
+
+<p>Real-life examples of such situations might include a temporary unavailability of systems acting as source of data, any kinds of errors in the stage of dataset creation or simply raw data structure being not ‘rich’ enough to be directly used in an analysis or a dashboard.</p>
+
+<h1 id="business-problem-to-solve">Business Problem to Solve</h1>
+
+<p>Let’s imagine we have some kind of an application. Everyone can use the application as long as they create a user account. Some functionalities of our app are available for free and some only for paid premium account. There is also a 1 week free trial. Depending on the usage of an app we also divide users into categories like ‘beginner’, ‘contributor’ and ‘expert’. In our database we gather all possible logs of users behaviours and attributes. Now let’s say there is a trick in these logs. Everytime a new user account is created, the log records a unique ID of this account and all user attributes. But then with any change of any of the attributes, we only get the ID and this particular attribute. Let’s take a look at the sample raw data below to understand the problem better.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">user_sample</span>
+<span class="p">(</span>
+    <span class="n">log_date</span>        <span class="nb">date</span><span class="p">,</span>
+    <span class="n">user_account_id</span> <span class="nb">integer</span><span class="p">,</span>
+    <span class="n">action_type</span>     <span class="nb">varchar</span><span class="p">(</span><span class="mi">32</span><span class="p">),</span>
+    <span class="n">account_type</span>    <span class="nb">varchar</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span>
+    <span class="n">user_level</span>      <span class="nb">varchar</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+<span class="p">);</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">user_sample</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">'2020-02-15'</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="s1">'user account created'</span><span class="p">,</span> <span class="s1">'free (basic)'</span><span class="p">,</span> <span class="s1">'beginner'</span><span class="p">);</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">user_sample</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">'2020-02-18'</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="s1">'user account updated'</span><span class="p">,</span> <span class="s1">'trial'</span><span class="p">,</span> <span class="k">NULL</span><span class="p">);</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">user_sample</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">'2020-02-25'</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="s1">'user account updated'</span><span class="p">,</span> <span class="k">NULL</span><span class="p">,</span> <span class="s1">'contributor'</span><span class="p">);</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">user_sample</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">'2020-03-01'</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="s1">'user account updated'</span><span class="p">,</span> <span class="s1">'premium'</span><span class="p">,</span> <span class="k">NULL</span><span class="p">);</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">user_sample</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">'2020-03-02'</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="s1">'user account updated'</span><span class="p">,</span> <span class="k">NULL</span><span class="p">,</span> <span class="s1">'expert'</span><span class="p">);</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">user_sample</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">'2020-03-06'</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="s1">'user account deleted'</span><span class="p">,</span> <span class="k">NULL</span><span class="p">,</span> <span class="k">NULL</span><span class="p">);</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">user_sample</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">'2020-02-19'</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="s1">'user account created'</span><span class="p">,</span> <span class="s1">'free (basic)'</span><span class="p">,</span> <span class="s1">'beginner'</span><span class="p">);</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">user_sample</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">'2020-03-01'</span><span class="p">,</span> <span class="mi">333</span><span class="p">,</span> <span class="s1">'user account created'</span><span class="p">,</span> <span class="s1">'free (basic)'</span><span class="p">,</span> <span class="s1">'beginner'</span><span class="p">);</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">user_sample</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">'2020-03-04'</span><span class="p">,</span> <span class="mi">333</span><span class="p">,</span> <span class="s1">'user account deleted'</span><span class="p">,</span> <span class="k">NULL</span><span class="p">,</span> <span class="k">NULL</span><span class="p">);</span>
+
+<span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span> <span class="n">user_sample</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">user_account_id</span><span class="p">,</span> <span class="n">log_date</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Output:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">log_date</th>
+      <th style="text-align: left">user_account_id</th>
+      <th style="text-align: left">action_type</th>
+      <th style="text-align: left">account_type</th>
+      <th style="text-align: left">user_level</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">2020-02-15</td>
+      <td style="text-align: left">111</td>
+      <td style="text-align: left">user account created</td>
+      <td style="text-align: left">free (basic)</td>
+      <td style="text-align: left">beginner</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-02-18</td>
+      <td style="text-align: left">111</td>
+      <td style="text-align: left">user account updated</td>
+      <td style="text-align: left">trial</td>
+      <td style="text-align: left">NULL</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-02-25</td>
+      <td style="text-align: left">111</td>
+      <td style="text-align: left">user account updated</td>
+      <td style="text-align: left">NULL</td>
+      <td style="text-align: left">contributor</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-03-01</td>
+      <td style="text-align: left">111</td>
+      <td style="text-align: left">user account updated</td>
+      <td style="text-align: left">premium</td>
+      <td style="text-align: left">NULL</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-03-02</td>
+      <td style="text-align: left">111</td>
+      <td style="text-align: left">user account updated</td>
+      <td style="text-align: left">NULL</td>
+      <td style="text-align: left">expert</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-03-06</td>
+      <td style="text-align: left">111</td>
+      <td style="text-align: left">user account deleted</td>
+      <td style="text-align: left">NULL</td>
+      <td style="text-align: left">NULL</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-02-19</td>
+      <td style="text-align: left">222</td>
+      <td style="text-align: left">user account created</td>
+      <td style="text-align: left">free (basic)</td>
+      <td style="text-align: left">beginner</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-03-01</td>
+      <td style="text-align: left">333</td>
+      <td style="text-align: left">user account created</td>
+      <td style="text-align: left">free (basic)</td>
+      <td style="text-align: left">beginner</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-03-04</td>
+      <td style="text-align: left">333</td>
+      <td style="text-align: left">user account deleted</td>
+      <td style="text-align: left">NULL</td>
+      <td style="text-align: left">NULL</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>As you can see when there is a new account created all columns are populated with values (and intuitively, all users start their accounts with basic plan and they are on the beginner level). Then in case of a change in one of user attributes (for example our user 111 changed their <em>account_type</em> to trial on 2020-02-18) we do not receive their other attribute (here <em>user_level</em>) and the assumption is it stayed as it already was. When a user account is deleted, we receive no attributes at all. On 2020-03-06 user 111 deleted their account and we can assume by analyzing their historical records that at this day they had a premium account and were at the expert level.</p>
+
+<p>Now such information might be easy to deduce while looking at my simple example with 9 rows, but imagine hundreds of thousands of user records. No analysis could ever be done based on such a messy dataset. What we want to achieve here is having all possible information for every record in the dataset. To put it even simpler - let’s get rid of all the nulls. Part 1 shows how to solve such a problem.</p>
+
+<p>Additionally, if the further analysis of this dataset required that we (or another program like a dashboard) easily query the state of every existing user account at a particular date, we also need to somehow fill the gaps in the dates themselves. This is an example of building a slowly changing dimension with a daily grain (well, there are numerous other types of SCDs and other ways of tackling irregularly changing data, I recommend <a href="https://en.wikipedia.org/wiki/Slowly_changing_dimension">Wikipedia article on SCD</a> as a reference). This will be covered in the second part.</p>
+
+<h1 id="part-1---propagate-user-attributes-using-advanced-window-functions">Part 1 - Propagate User Attributes Using Advanced Window Functions</h1>
+
+<p>So, in the second row, in column <em>user_level</em> instead of null we would like to have the most recent <em>user_level</em> for this user_account_id which is <em>beginner</em>. In the third row the <em>account_type</em> should be <em>trial</em>. And so on.</p>
+
+<p>The query that does the magic looks as follows:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span>
+    <span class="n">log_date</span>
+  <span class="p">,</span> <span class="n">user_account_id</span>
+  <span class="p">,</span> <span class="n">action_type</span>
+  <span class="p">,</span> <span class="n">last_value</span><span class="p">(</span><span class="n">account_type</span> <span class="k">IGNORE</span> <span class="n">NULLS</span><span class="p">)</span>
+    <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">user_account_id</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">log_date</span> <span class="k">ROWS</span> <span class="n">UNBOUNDED</span> <span class="n">PRECEDING</span><span class="p">)</span> <span class="k">AS</span> <span class="n">account_type</span>
+  <span class="p">,</span> <span class="n">last_value</span><span class="p">(</span><span class="n">user_level</span> <span class="k">IGNORE</span> <span class="n">NULLS</span><span class="p">)</span>
+    <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">user_account_id</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">log_date</span> <span class="k">ROWS</span> <span class="n">UNBOUNDED</span> <span class="n">PRECEDING</span><span class="p">)</span> <span class="k">AS</span> <span class="n">user_level</span>
+<span class="k">FROM</span> <span class="n">user_sample</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">user_account_id</span><span class="p">,</span> <span class="n">log_date</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>And it gives the following output:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">log_date</th>
+      <th style="text-align: left">user_account_id</th>
+      <th style="text-align: left">action_type</th>
+      <th style="text-align: left">account_type</th>
+      <th style="text-align: left">user_level</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">2020-02-15</td>
+      <td style="text-align: left">111</td>
+      <td style="text-align: left">user account created</td>
+      <td style="text-align: left">free (basic)</td>
+      <td style="text-align: left">beginner</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-02-18</td>
+      <td style="text-align: left">111</td>
+      <td style="text-align: left">user account updated</td>
+      <td style="text-align: left">trial</td>
+      <td style="text-align: left">beginner</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-02-25</td>
+      <td style="text-align: left">111</td>
+      <td style="text-align: left">user account updated</td>
+      <td style="text-align: left">trial</td>
+      <td style="text-align: left">contributor</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-03-01</td>
+      <td style="text-align: left">111</td>
+      <td style="text-align: left">user account updated</td>
+      <td style="text-align: left">premium</td>
+      <td style="text-align: left">contributor</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-03-02</td>
+      <td style="text-align: left">111</td>
+      <td style="text-align: left">user account updated</td>
+      <td style="text-align: left">premium</td>
+      <td style="text-align: left">expert</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-03-06</td>
+      <td style="text-align: left">111</td>
+      <td style="text-align: left">user account deleted</td>
+      <td style="text-align: left">premium</td>
+      <td style="text-align: left">expert</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-02-19</td>
+      <td style="text-align: left">222</td>
+      <td style="text-align: left">user account created</td>
+      <td style="text-align: left">free (basic)</td>
+      <td style="text-align: left">beginner</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-03-01</td>
+      <td style="text-align: left">333</td>
+      <td style="text-align: left">user account created</td>
+      <td style="text-align: left">free (basic)</td>
+      <td style="text-align: left">beginner</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-03-04</td>
+      <td style="text-align: left">333</td>
+      <td style="text-align: left">user account deleted</td>
+      <td style="text-align: left">free (basic)</td>
+      <td style="text-align: left">beginner</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="now-what-happened-here">Now what happened here?</h2>
+
+<p>We partition data by <em>user_account_id</em> because this is the window within which we want to track user attributes. Naturally, they are ordered by <em>log_date</em>. Then, we define a frame clause. For every record within a window (that is within <em>user_account_id</em> ) we want to look back on previous <em>account_type</em> values (hence the ROWS UNBOUNDED PRECEDING part) and replace the value in the current record the last non-null value. Analogically, we run the same function for <em>user_level</em> column.</p>
+
+<p>Two awesome references that can help understanding frame clauses better are <a href="https://docs.aws.amazon.com/redshift/latest/dg/r_Window_function_synopsis.html">AWS Window Function Syntax Documentation</a> and this <a href="https://sonra.io/2017/07/11/introduction-window-functions-redshift/">Window Functions in Redshift</a> article.</p>
+
+<h1 id="part-2---implement-date-ranges-for-every-user-state">Part 2 - Implement Date Ranges for Every User State</h1>
+
+<p>Okay, so now there are no nulls in the table and for whichever record we query we see all possible attributes of a user in that particular moment in time. However, there are still information missing from this table. What if I wanted to check what was the status of all users of my app as of 2020-03-03? There is no row with such a <em>log_date</em>.</p>
+
+<p>To easily query the user report by a specific date, we will introduce a time range in which every user state applied. <em>log_date</em> in this case acts as a date from which a user existed with particular attributes. <em>valid_to</em> is equal to a day before any changes occurred. If after some point in time user never changed their state, their <em>valid_to</em> date will be a surrogate high date ‘9999-12-31’. It indicates the user is still active with attributes as in this particular record. For user deletion entries, <em>valid_from</em> and <em>valid_to</em> dates are equal.</p>
+
+<p>Note that we used a common table expression here aliased as <em>users_no_gaps</em>. This is the same subquery we saw in part 1 of tutorial.</p>
+
+<p>I saved the result of the whole query into a new table named <em>users_final_report</em>.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">users_final_report</span> <span class="k">AS</span> <span class="p">(</span>
+    <span class="k">WITH</span> <span class="n">users_no_gaps</span> <span class="k">AS</span> <span class="p">(</span>
+        <span class="k">SELECT</span>
+            <span class="n">log_date</span>
+          <span class="p">,</span> <span class="n">user_account_id</span>
+          <span class="p">,</span> <span class="n">action_type</span>
+          <span class="p">,</span> <span class="n">last_value</span><span class="p">(</span><span class="n">account_type</span> <span class="k">IGNORE</span> <span class="n">NULLS</span><span class="p">)</span>
+            <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">user_account_id</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">log_date</span> <span class="k">ROWS</span> <span class="n">UNBOUNDED</span> <span class="n">PRECEDING</span><span class="p">)</span> <span class="k">AS</span> <span class="n">account_type</span>
+          <span class="p">,</span> <span class="n">last_value</span><span class="p">(</span><span class="n">user_level</span> <span class="k">IGNORE</span> <span class="n">NULLS</span><span class="p">)</span>
+            <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">user_account_id</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">log_date</span> <span class="k">ROWS</span> <span class="n">UNBOUNDED</span> <span class="n">PRECEDING</span><span class="p">)</span> <span class="k">AS</span> <span class="n">user_level</span>
+        <span class="k">FROM</span> <span class="n">user_sample</span><span class="p">)</span>
+    <span class="k">SELECT</span>
+        <span class="n">log_date</span>                <span class="k">AS</span> <span class="n">valid_from</span>
+      <span class="p">,</span> <span class="k">CASE</span>
+            <span class="k">WHEN</span> <span class="n">action_type</span> <span class="o">!=</span> <span class="s1">'user account deleted'</span> <span class="k">THEN</span>
+                <span class="n">nvl</span><span class="p">(</span><span class="n">lead</span><span class="p">(</span><span class="n">log_date</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">user_account_id</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">log_date</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'9999-12-31'</span><span class="p">)</span> 
+            <span class="c1">-- surrogate date indicates no further changes in user attributes</span>
+            <span class="k">ELSE</span> <span class="n">valid_from</span> <span class="k">END</span> <span class="k">AS</span> <span class="n">valid_to</span> 
+            <span class="c1">-- if user is deleted the date of their deletion becomes their 'valid_to' date</span>
+      <span class="p">,</span> <span class="n">user_account_id</span>
+      <span class="p">,</span> <span class="n">action_type</span>
+      <span class="p">,</span> <span class="n">account_type</span>
+      <span class="p">,</span> <span class="n">user_level</span>
+    <span class="k">FROM</span> <span class="n">users_no_gaps</span>
+    <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">user_account_id</span><span class="p">,</span> <span class="n">valid_from</span><span class="p">)</span>
+<span class="p">;</span>
+</code></pre></div></div>
+
+<p>Now that we built the final structure, we can go back to the question that was asked at the beginning of part 2. We want to see the state of all users as of 2020-03-03. The query is simple:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span> <span class="n">users_final_report</span>
+<span class="k">WHERE</span> <span class="s1">'2020-03-03'</span> <span class="k">BETWEEN</span> <span class="n">valid_from</span> <span class="k">AND</span> <span class="n">valid_to</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>And the output clean and easy to interpret:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">valid_from</th>
+      <th style="text-align: left">valid_to</th>
+      <th style="text-align: left">user_account_id</th>
+      <th style="text-align: left">action_type</th>
+      <th style="text-align: left">account_type</th>
+      <th style="text-align: left">user_level</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">2020-02-19</td>
+      <td style="text-align: left">9999-12-31</td>
+      <td style="text-align: left">222</td>
+      <td style="text-align: left">user account created</td>
+      <td style="text-align: left">free (basic)</td>
+      <td style="text-align: left">beginner</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-03-01</td>
+      <td style="text-align: left">2020-03-03</td>
+      <td style="text-align: left">333</td>
+      <td style="text-align: left">user account created</td>
+      <td style="text-align: left">free (basic)</td>
+      <td style="text-align: left">beginner</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2020-03-02</td>
+      <td style="text-align: left">2020-03-05</td>
+      <td style="text-align: left">111</td>
+      <td style="text-align: left">user account updated</td>
+      <td style="text-align: left">premium</td>
+      <td style="text-align: left">expert</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><em>Hope you enjoyed this tutorial! In case of any questions and remarks, please leave a comment.</em></p>
+
+:ET
